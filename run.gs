@@ -14,8 +14,6 @@ const rescheduleTimeout =
 
 const sourceFolderId = scriptProperties.getProperty("sourceFolderId"); //Copy from this folder
 const targetFolderId = scriptProperties.getProperty("targetFolderId"); //Copy to this folder
-const donefileId = scriptProperties.getProperty("donefileId"); // Make sure this file exists, just an empty file named done to indicate this folder is done
-var doneFile;
 
 function start() {
   // The source folder
@@ -23,24 +21,19 @@ function start() {
   // Create the target folder
   let targetFolder = DriveApp.getFolderById(targetFolderId);
 
-  Logger.log("Starting file copy of " + maxFilesSoft + " files");
-  Logger.log("Source folder " + sourceFolder.getName());
-  Logger.log("Target folder " + targetFolder.getName());
-  Logger.log("Restart in " + rescheduleTimeout + " seconds");
+  Logger.log(`Starting file copy of ${maxFilesSoft} files`);
+  Logger.log(`Source folder ${sourceFolder.getName()}`);
+  Logger.log(`Target folder ${targetFolder.getName()}`);
+  Logger.log(`Restart in ${rescheduleTimeout} seconds`);
 
-  doneFile = DriveApp.getFileById(donefileId);
   removeTriggers();
+
   ScriptApp.newTrigger("start")
     .timeBased()
     .after(rescheduleTimeout * 1000)
     .create();
 
-  // Copy self as the first folder
   copyFolder(sourceFolder, targetFolder);
-}
-
-function createDoneFile(targetFolder) {
-  doneFile.makeCopy("done", targetFolder);
 }
 
 function fileExists(name, folderId) {
@@ -74,26 +67,21 @@ function folderExists(name, folderId) {
 }
 
 function copyFolder(sourceFolder, targetFolder) {
-  //Check if target folder says we are done
-  /*if (fileExists("done", targetFolder.getId())) {
-    Logger.log("Folder " + targetFolder.getName() + " is done already");
-    return;
-  }*/
-
   Logger.log(
-    "Copying folder " +
-      sourceFolder.getName() +
-      " to target " +
-      targetFolder.getName()
+    `Copying folder ${sourceFolder.getName()} to target ${targetFolder.getName()}`
   );
   let subfolders;
-  let tokenProperty = "contToken_"+ targetFolder.getId();
-  let contToken = scriptProperties.getProperty(tokenProperty)
+  let tokenProperty = "contToken_" + targetFolder.getId();
+  let contToken = scriptProperties.getProperty(tokenProperty);
   if (contToken) {
-    Logger.log("Continuation token found, continuing iteration",contToken);
+    Logger.log(`Continuation token found, continuing iteration`, contToken);
     subfolders = DriveApp.continueFolderIterator(contToken);
   } else {
-    subfolders = sourceFolder.getFolders();   
+    subfolders = sourceFolder.getFolders();
+    scriptProperties.setProperty(
+      tokenProperty,
+      subfolders.getContinuationToken()
+    );
   }
 
   while (subfolders.hasNext()) {
@@ -110,34 +98,28 @@ function copyFolder(sourceFolder, targetFolder) {
     if (exitScript) {
       return;
     }
-    scriptProperties.setProperty(tokenProperty, subfolders.getContinuationToken());
+    scriptProperties.setProperty(
+      tokenProperty,
+      subfolders.getContinuationToken()
+    );
   }
 
   // Copy all files in the folder
   copyFiles(sourceFolder, targetFolder);
 
-  //createDoneFile(targetFolder);
-
-  scriptProperties.deleteProperty(tokenProperty)
+  //Done with the continuation token
+  scriptProperties.deleteProperty(tokenProperty);
 
   Logger.log(
-    "Done with the folder " +
-      sourceFolder.getName() +
-      " total " +
-      totalFiles +
-      " copied"
+    `Done with the folder ${sourceFolder.getName()}  total ${totalFiles} copied`
   );
   if (totalFiles >= maxFilesSoft) {
-    Logger.log(
-      "Exiting because we have reached the limit, schedule to run again in " +
-        rescheduleSeconds
-    );
     removeTriggers();
     ScriptApp.newTrigger("start")
       .timeBased()
       .after(rescheduleSeconds * 1000)
       .create();
-    Logger.log("Trigger created");
+    Logger.log(`Trigger created for run in ${rescheduleSeconds} seconds`);
     exitScript = true;
   }
 }
@@ -150,16 +132,15 @@ function removeTriggers() {
 }
 
 function copyFiles(sourceFolder, tFolder) {
-  // Copy all the files
   var files = sourceFolder.getFiles();
 
   while (files.hasNext()) {
     file = files.next();
     if (fileExists(file.getName(), tFolder.getId())) {
-      Logger.log("File already exists: " + file.getName());
+      Logger.log(`File already exists: ${file.getName()}`);
     } else {
       Logger.log(
-        "Copying file " + file.getName() + " to folder " + tFolder.getName()
+        `Copying file ${file.getName()} to folder ${tFolder.getName()}`
       );
       totalFiles = totalFiles + 1;
       file.makeCopy(file.getName(), tFolder);
