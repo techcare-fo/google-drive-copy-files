@@ -1,12 +1,17 @@
+var scriptProperties = PropertiesService.getScriptProperties();
 var totalFiles = 0;
-var maxFilesSoft = 100;
+var maxFilesSoft = parseInt(scriptProperties.getProperty('maxFilesSoft')) || 100;
 var exitScript = false;
-var rescheduleSeconds = 10;//Start script again after successfull exit but still files remaining
-var rescheduleTimeout = 60 * 40;//Start script again after timeout
 
-var sourceFolderId = "";//Development
-var targetFolderId = "";
-var donefileId = "";// Make sure this file exists, just an empty file named done
+//Start script again after successfull exit but still files remaining
+var rescheduleSeconds = parseInt(scriptProperties.getProperty('rescheduleSeconds')) || 10;
+
+//Start script again after timeout
+var rescheduleTimeout = parseInt(scriptProperties.getProperty('rescheduleSeconds')) || 60 * 40;
+
+var sourceFolderId = scriptProperties.getProperty('sourceFolderId');//Copy from this folder
+var targetFolderId = scriptProperties.getProperty('targetFolderId'); //Copy to this folder
+var donefileId =  scriptProperties.getProperty('donefileId');// Make sure this file exists, just an empty file named done to indicate this folder is done
 var doneFile;
 
 function start() {
