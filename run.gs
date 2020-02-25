@@ -86,12 +86,24 @@ function copyFolder(sourceFolder, targetFolder) {
       " to target " +
       targetFolder.getName()
   );
-
-  if (fileExists) var subfolders = sourceFolder.getFolders();
+  let subfolders;
+  let contToken = "";
+  let contFileId = fileExists("contToken", targetFolder.getId());
+  if (contFileId) {
+    Logger.log("Continuation token found, continuing iteration");
+    contToken = DriveApp.getFileById(contFileId)
+      .getBlob()
+      .getDataAsString();
+    subfolders = DriveApp.continueFolderIterator(contToken);
+  } else {
+    subfolders = sourceFolder.getFolders();
+    let contFile = doneFile.makeCopy("contToken", targetFolder);
+    contFile.setContent(subfolders.getContinuationToken());
+    contFileId = contFile.getId();
+  }
 
   while (subfolders.hasNext()) {
     var subfolder = subfolders.next();
-    var subfolderName = subfolder.getName();
     //Check if target folder exists and if it does then get it
     var newFolderId = folderExists(subfolder.getName(), targetFolder.getId());
     var targetSubfolder;
@@ -100,17 +112,22 @@ function copyFolder(sourceFolder, targetFolder) {
     } else {
       targetSubfolder = targetFolder.createFolder(subfolder.getName());
     }
-    var targetSubFolderName = targetSubfolder.getName();
     copyFolder(subfolder, targetSubfolder);
     if (exitScript) {
       return;
     }
+    DriveApp.getFileById(contFileId).setContent(
+      subfolders.getContinuationToken()
+    );
   }
 
   // Copy all files in the folder
   copyFiles(sourceFolder, targetFolder);
 
   createDoneFile(targetFolder);
+
+  //Remove continuation file
+  Drive.Files.remove(contFileId);
 
   Logger.log(
     "Done with the folder " +
