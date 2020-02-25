@@ -23,6 +23,11 @@ function start() {
   // Create the target folder
   var targetFolder = DriveApp.getFolderById(targetFolderId);
 
+  Logger.log("Starting file copy of " + maxFilesSoft + " files");
+  Logger.log("Source folder " + sourceFolder.getName());
+  Logger.log("Target folder " + targetFolder.getName());
+  Logger.log("Restart in " + rescheduleTimeout + " seconds");
+
   doneFile = DriveApp.getFileById(donefileId);
   removeTriggers();
   ScriptApp.newTrigger("start")
