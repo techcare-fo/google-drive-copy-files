@@ -12,3 +12,8 @@ Script to copy large amounts of files in google drive, can be used to backup/cop
 | sourceFolderId    | Id of source folder [How to find](https://ploi.io/documentation/mysql/where-do-i-get-google-drive-folder-id)                      |         |
 | targetFolderId    | Id of target folder                                                                                                               |         |
 | donefileId        | Id of file that indicates the folder is done                                                                                      |         |
+
+## How to use
+
+Copy the script to [Google Apps Script](https://script.google.com/home/start). Set the script properties and then run start function.
+
