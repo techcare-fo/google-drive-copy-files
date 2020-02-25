@@ -1,27 +1,27 @@
-var scriptProperties = PropertiesService.getScriptProperties();
+const scriptProperties = PropertiesService.getScriptProperties();
 var totalFiles = 0;
-var maxFilesSoft =
+const maxFilesSoft =
   parseInt(scriptProperties.getProperty("maxFilesSoft")) || 100;
 var exitScript = false;
 
 //Start script again after successfull exit but still files remaining
-var rescheduleSeconds =
+const rescheduleSeconds =
   parseInt(scriptProperties.getProperty("rescheduleSeconds")) || 10;
 
 //Start script again after timeout
-var rescheduleTimeout =
+const rescheduleTimeout =
   parseInt(scriptProperties.getProperty("rescheduleSeconds")) || 60 * 40;
 
-var sourceFolderId = scriptProperties.getProperty("sourceFolderId"); //Copy from this folder
-var targetFolderId = scriptProperties.getProperty("targetFolderId"); //Copy to this folder
-var donefileId = scriptProperties.getProperty("donefileId"); // Make sure this file exists, just an empty file named done to indicate this folder is done
+const sourceFolderId = scriptProperties.getProperty("sourceFolderId"); //Copy from this folder
+const targetFolderId = scriptProperties.getProperty("targetFolderId"); //Copy to this folder
+const donefileId = scriptProperties.getProperty("donefileId"); // Make sure this file exists, just an empty file named done to indicate this folder is done
 var doneFile;
 
 function start() {
   // The source folder
-  var sourceFolder = DriveApp.getFolderById(sourceFolderId);
+  let sourceFolder = DriveApp.getFolderById(sourceFolderId);
   // Create the target folder
-  var targetFolder = DriveApp.getFolderById(targetFolderId);
+  let targetFolder = DriveApp.getFolderById(targetFolderId);
 
   Logger.log("Starting file copy of " + maxFilesSoft + " files");
   Logger.log("Source folder " + sourceFolder.getName());
@@ -40,20 +40,6 @@ function start() {
 }
 
 function createDoneFile(targetFolder) {
-  /*
-  
-  This does not work on the shared drives
-  
-  var resource = {
-    title: "done",
-    mimeType: MimeType.PLAIN_TEXT,
-    parents: [{ id: sourceFolder.getId() }]
-  }
-  var fileJson = Drive.Files.insert(resource)  ;
-  var file = DriveApp.getFileById( fileJson.id);
-  file.setContent("done");
-  return fileJson.id;
-  */
   doneFile.makeCopy("done", targetFolder);
 }
 
@@ -101,7 +87,7 @@ function copyFolder(sourceFolder, targetFolder) {
       targetFolder.getName()
   );
 
-  var subfolders = sourceFolder.getFolders();
+  if (fileExists) var subfolders = sourceFolder.getFolders();
 
   while (subfolders.hasNext()) {
     var subfolder = subfolders.next();
