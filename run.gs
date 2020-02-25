@@ -91,7 +91,7 @@ function copyFolder(sourceFolder, targetFolder) {
   let contFileId = fileExists("contToken", targetFolder.getId());
   if (contFileId) {
     Logger.log("Continuation token found, continuing iteration");
-    contToken = DocumentApp.getFileById(contFileId)
+    contToken = DocumentApp.openById(contFileId)
       .getBody()
       .getText();
     subfolders = DriveApp.continueFolderIterator(contToken);
