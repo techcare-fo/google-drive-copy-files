@@ -75,10 +75,10 @@ function folderExists(name, folderId) {
 
 function copyFolder(sourceFolder, targetFolder) {
   //Check if target folder says we are done
-  if (fileExists("done", targetFolder.getId())) {
+  /*if (fileExists("done", targetFolder.getId())) {
     Logger.log("Folder " + targetFolder.getName() + " is done already");
     return;
-  }
+  }*/
 
   Logger.log(
     "Copying folder " +
@@ -87,19 +87,13 @@ function copyFolder(sourceFolder, targetFolder) {
       targetFolder.getName()
   );
   let subfolders;
-  let contToken = "";
-  let contFileId = fileExists("contToken", targetFolder.getId());
-  if (contFileId) {
-    Logger.log("Continuation token found, continuing iteration");
-    contToken = DocumentApp.openById(contFileId)
-      .getBody()
-      .getText();
+  let tokenProperty = "contToken_"+ targetFolder.getId();
+  let contToken = scriptProperties.getProperty(tokenProperty)
+  if (contToken) {
+    Logger.log("Continuation token found, continuing iteration",contToken);
     subfolders = DriveApp.continueFolderIterator(contToken);
   } else {
-    subfolders = sourceFolder.getFolders();
-    let contFile = doneFile.makeCopy("contToken", targetFolder);
-    contFile.setContent(subfolders.getContinuationToken());
-    contFileId = contFile.getId();
+    subfolders = sourceFolder.getFolders();   
   }
 
   while (subfolders.hasNext()) {
@@ -116,18 +110,15 @@ function copyFolder(sourceFolder, targetFolder) {
     if (exitScript) {
       return;
     }
-    DriveApp.getFileById(contFileId).setContent(
-      subfolders.getContinuationToken()
-    );
+    scriptProperties.setProperty(tokenProperty, subfolders.getContinuationToken());
   }
 
   // Copy all files in the folder
   copyFiles(sourceFolder, targetFolder);
 
-  createDoneFile(targetFolder);
+  //createDoneFile(targetFolder);
 
-  //Remove continuation file
-  Drive.Files.remove(contFileId);
+  scriptProperties.deleteProperty(tokenProperty)
 
   Logger.log(
     "Done with the folder " +
