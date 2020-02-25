@@ -11,7 +11,6 @@ Script to copy large amounts of files in google drive, can be used to backup/cop
 | rescheduleTimeout | Number of seconds to wait until script is restarted if it fails or times out (This is cancelled if the script itself reschedules) | 2400    |
 | sourceFolderId    | Id of source folder [How to find](https://ploi.io/documentation/mysql/where-do-i-get-google-drive-folder-id)                      |         |
 | targetFolderId    | Id of target folder                                                                                                               |         |
-| donefileId        | Id of file that indicates the folder is done                                                                                      |         |
 
 ## How to use
 
