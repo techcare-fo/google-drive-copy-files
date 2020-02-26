@@ -132,10 +132,13 @@ function removeTriggers() {
 }
 
 function copyFiles(sourceFolder, tFolder) {
+  Logger.log(`Getting files`);
   var files = sourceFolder.getFiles();
-
+  Logger.log(`Got the files`);
+  
   while (files.hasNext()) {
     file = files.next();
+    Logger.log(`File exists?`);
     if (fileExists(file.getName(), tFolder.getId())) {
       Logger.log(`File already exists: ${file.getName()}`);
     } else {
