@@ -64,13 +64,13 @@ function folderExists(name, folderId) {
       }
     }
   }
-  return false;
+  return false;already
 }
 
 function copyFolder(sourceFolder, targetFolder) {
   let folderCacheKey = targetFolder.getId() + "_done";
   if(cache.get(folderCacheKey)){
-    Logger.log(`Folder ${targetFolder.getName()} is done already`);
+    Logger.log(`Folder ${targetFolder.getName()} is done `);
   }else{
     Logger.log(`Copying folder ${sourceFolder.getName()} to target ${targetFolder.getName()}`);
   }
@@ -142,10 +142,16 @@ function copyFiles(sourceFolder, tFolder) {
   
   while (files.hasNext()) {
     file = files.next();
+    fileKey = `${file.getId()}-${tFolder.getId()}`;
+    if(cache.get(fileKey) == "copied"){
+      Logger.log(`File ${file.getName()}already copied`);
+    }else{
       Logger.log(
         `Copying file ${file.getName()} to folder ${tFolder.getName()}`
       );
       totalFiles = totalFiles + 1;
-      file.makeCopy(file.getName(), tFolder);     
+      file.makeCopy(file.getName(), tFolder);
+      cache.put(fileKey,"copied", 60*60);
+    }  
   }
 }
