@@ -1,4 +1,5 @@
 const scriptProperties = PropertiesService.getScriptProperties();
+const cache = CacheService.getScriptCache();
 var totalFiles = 0;
 const maxFilesSoft =
   parseInt(scriptProperties.getProperty("maxFilesSoft")) || 100;
@@ -67,9 +68,12 @@ function folderExists(name, folderId) {
 }
 
 function copyFolder(sourceFolder, targetFolder) {
-  Logger.log(
-    `Copying folder ${sourceFolder.getName()} to target ${targetFolder.getName()}`
-  );
+  let folderCacheKey = targetFolder.getId() + "_done";
+  if(cache.get(folderCacheKey)){
+    Logger.log(`Folder ${targetFolder.getName()} is done already`);
+  }else{
+    Logger.log(`Copying folder ${sourceFolder.getName()} to target ${targetFolder.getName()}`);
+  }
   let subfolders;
   let tokenProperty = "contToken_" + targetFolder.getId();
   let contToken = scriptProperties.getProperty(tokenProperty);
@@ -113,6 +117,8 @@ function copyFolder(sourceFolder, targetFolder) {
   Logger.log(
     `Done with the folder ${sourceFolder.getName()}  total ${totalFiles} copied`
   );
+  cache.put(folderCacheKey, true, 60*60);
+
   if (totalFiles >= maxFilesSoft) {
     removeTriggers();
     ScriptApp.newTrigger("start")
