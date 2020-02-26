@@ -138,10 +138,10 @@ function copyFiles(sourceFolder, tFolder) {
   
   while (files.hasNext()) {
     file = files.next();
-    Logger.log(`File exists?`);
-    if (fileExists(file.getName(), tFolder.getId())) {
-      Logger.log(`File already exists: ${file.getName()}`);
-    } else {
+    //Logger.log(`File exists?`);
+    //if (fileExists(file.getName(), tFolder.getId())) {
+    //  Logger.log(`File already exists: ${file.getName()}`);
+    //} else {
       Logger.log(
         `Copying file ${file.getName()} to folder ${tFolder.getName()}`
       );
@@ -151,6 +151,6 @@ function copyFiles(sourceFolder, tFolder) {
         `DONE Copying file ${file.getName()}`
       );
   
-    }
+    //}
   }
 }
