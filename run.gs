@@ -64,13 +64,14 @@ function folderExists(name, folderId) {
       }
     }
   }
-  return false;already
+  return false;
 }
 
 function copyFolder(sourceFolder, targetFolder) {
   let folderCacheKey = targetFolder.getId() + "_done";
   if(cache.get(folderCacheKey)){
-    Logger.log(`Folder ${targetFolder.getName()} is done `);
+    Logger.log(`Folder ${targetFolder.getName()} is done already`);
+    return;
   }else{
     Logger.log(`Copying folder ${sourceFolder.getName()} to target ${targetFolder.getName()}`);
   }
