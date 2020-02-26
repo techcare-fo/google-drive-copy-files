@@ -144,6 +144,10 @@ function copyFiles(sourceFolder, tFolder) {
       );
       totalFiles = totalFiles + 1;
       file.makeCopy(file.getName(), tFolder);
+      Logger.log(
+        `DONE Copying file ${file.getName()}`
+      );
+  
     }
   }
 }
